@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#123b72">
-  <meta name="description" content="EarnSmart helps you organize affiliate links and track clicks.">
+  <meta name="description" content="EarnSmart helps you organize affiliate links and track activity.">
   <title>EarnSmart — Affiliate Hub</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -15,7 +15,7 @@
     <a class="brand" href="#" aria-label="EarnSmart home"><span class="brand-mark">E</span><span>Earn<span class="brand-light">Smart</span></span></a>
     <button class="menu-button" id="menuButton" aria-label="Toggle navigation" aria-expanded="false">☰</button>
     <nav id="nav">
-      <a href="#dashboard">Dashboard</a><a href="#products">Products</a><a href="#referrals">Share</a><a href="#guide">How it works</a>
+      <a href="#dashboard">Dashboard</a><a href="#account">Account</a><a href="#products">Products</a><a href="#guide">How it works</a>
     </nav>
   </header>
 
@@ -24,8 +24,8 @@
       <div>
         <p class="eyebrow">YOUR SIMPLE AFFILIATE WORKSPACE</p>
         <h1>Small steps.<br><span>Smarter earning.</span></h1>
-        <p class="hero-copy">Keep useful product links in one place, share them with your audience, and monitor your link activity.</p>
-        <a class="primary-button" href="#products">Explore products <span>→</span></a>
+        <p class="hero-copy">Sign in to manage your own affiliate links, share useful recommendations, and monitor link activity across devices.</p>
+        <a class="primary-button" href="#account">Get started <span>→</span></a>
       </div>
       <div class="hero-art" aria-hidden="true">
         <div class="coin coin-one">₱</div><div class="coin coin-two">↗</div>
@@ -34,38 +34,66 @@
     </section>
 
     <section class="notice" role="note">
-      <strong>Starter version:</strong> This app tracks clicks on this device only. It does not yet verify purchases, calculate real commissions, or send payouts. You must join an affiliate program and use its approved tracking links before earning commissions.
+      <strong>Important:</strong> EarnSmart organizes affiliate links and records clicks. Clicks are not sales or commissions. Purchases, commission amounts, cancellations, and payouts must be confirmed by the affiliate provider. No income is guaranteed.
+    </section>
+
+    <section class="section" id="account">
+      <div class="section-head"><div><p class="eyebrow">YOUR ACCOUNT</p><h2>Sign in or create an account</h2></div><span class="local-tag" id="authStatus">Not signed in</span></div>
+      <div class="auth-card">
+        <div id="authForms">
+          <form id="signupForm" class="auth-form">
+            <h3>Create your free account</h3>
+            <label>Your name<input id="signupName" maxlength="80" autocomplete="name" required></label>
+            <label>Email address<input id="signupEmail" type="email" autocomplete="email" required></label>
+            <label>Password<input id="signupPassword" type="password" minlength="8" autocomplete="new-password" required><small>Use at least 8 characters.</small></label>
+            <button class="primary-button" type="submit">Create account</button>
+          </form>
+          <form id="loginForm" class="auth-form">
+            <h3>Already registered?</h3>
+            <label>Email address<input id="loginEmail" type="email" autocomplete="email" required></label>
+            <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+            <button class="secondary-button" type="submit">Sign in</button>
+          </form>
+        </div>
+        <div id="signedInPanel" hidden>
+          <h3>You're signed in</h3>
+          <p id="welcomeText" class="muted"></p>
+          <button class="secondary-button" id="logoutButton" type="button">Sign out</button>
+        </div>
+        <p id="authMessage" class="copy-status" aria-live="polite"></p>
+      </div>
     </section>
 
     <section class="section-head">
       <div><p class="eyebrow">OVERVIEW</p><h2>Your activity</h2></div>
-      <span class="local-tag">Saved on this device</span>
+      <span class="local-tag" id="dataStatus">Sign in to load cloud data</span>
     </section>
     <section class="stats-grid" aria-label="Activity summary">
-      <article class="stat-card"><span class="stat-icon blue">↗</span><p>Product link clicks</p><strong id="clickCount">0</strong><small>Tracked in this browser</small></article>
-      <article class="stat-card"><span class="stat-icon purple">▣</span><p>Products listed</p><strong id="productCount">3</strong><small>Sample products</small></article>
-      <article class="stat-card"><span class="stat-icon green">₱</span><p>Verified commissions</p><strong>₱0.00</strong><small>Connect an affiliate program first</small></article>
+      <article class="stat-card"><span class="stat-icon blue">↗</span><p>Product link clicks</p><strong id="clickCount">0</strong><small>Clicks recorded for your account</small></article>
+      <article class="stat-card"><span class="stat-icon purple">▣</span><p>Products listed</p><strong id="productCount">0</strong><small>Your saved products</small></article>
+      <article class="stat-card"><span class="stat-icon green">₱</span><p>Verified commissions</p><strong>₱0.00</strong><small>Not connected to an affiliate provider</small></article>
     </section>
 
     <section class="section" id="products">
       <div class="section-head">
-        <div><p class="eyebrow">SHARE & EARN</p><h2>Featured products</h2><p class="muted">Replace sample links with your own approved affiliate URLs.</p></div>
+        <div><p class="eyebrow">SHARE & EARN</p><h2>Your affiliate products</h2><p class="muted">Sign in to view and manage your cloud-saved products.</p></div>
       </div>
-      <div class="product-grid" id="productGrid"></div>
+      <div class="product-grid" id="productGrid"><p class="muted">Sign in to load your products.</p></div>
       <form class="add-form" id="productForm">
-        <h3>Add your own affiliate link</h3>
+        <h3>Add an affiliate link</h3>
         <div class="form-grid">
           <label>Product name<input id="productName" maxlength="60" placeholder="e.g. Wireless headphones" required></label>
           <label>Affiliate URL<input id="productUrl" type="url" placeholder="https://..." required></label>
         </div>
+        <label>Short description (optional)<input id="productDescription" maxlength="180" placeholder="Why you recommend this product"></label>
         <button class="secondary-button" type="submit">＋ Add product</button>
-        <p class="form-help">Only add links from affiliate programs you have joined. Never paste private account or payment information here.</p>
+        <p class="form-help">Only add tracking links from affiliate programs that approved you. Your products are private to your account in this version.</p>
       </form>
     </section>
 
     <section class="share-panel" id="referrals">
-      <div><p class="eyebrow">GROW YOUR AUDIENCE</p><h2>Share EarnSmart</h2><p class="muted">Invite people to view your product page. This is a share link, not a paid referral or guaranteed-reward program.</p></div>
-      <div class="share-box"><input id="shareUrl" readonly aria-label="Your share link"><button class="primary-button" id="copyShare">Copy link</button></div>
+      <div><p class="eyebrow">GROW YOUR AUDIENCE</p><h2>Share EarnSmart</h2><p class="muted">Share your public website. Product records are private to each signed-in account in this version.</p></div>
+      <div class="share-box"><input id="shareUrl" readonly aria-label="Your share link"><button class="primary-button" id="copyShare" type="button">Copy link</button></div>
       <p class="copy-status" id="copyStatus" aria-live="polite"></p>
     </section>
 
@@ -73,18 +101,19 @@
       <p class="eyebrow">GET STARTED</p><h2>How EarnSmart works</h2>
       <div class="steps">
         <article><span>01</span><h3>Join an affiliate program</h3><p>Apply directly to a legitimate merchant or affiliate network. Approval and terms vary.</p></article>
-        <article><span>02</span><h3>Add approved links</h3><p>Paste your unique affiliate tracking URLs into your product list.</p></article>
-        <article><span>03</span><h3>Share useful recommendations</h3><p>Post helpful, honest product content and clearly disclose that links may earn you a commission.</p></article>
-        <article><span>04</span><h3>Check official reports</h3><p>Purchases, cancellations, commission amounts, and payouts are confirmed by the affiliate provider—not this starter app.</p></article>
+        <article><span>02</span><h3>Add approved links</h3><p>Paste your unique affiliate tracking URLs into your private product list.</p></article>
+        <article><span>03</span><h3>Share useful recommendations</h3><p>Post helpful, honest product content and disclose that links may earn you a commission.</p></article>
+        <article><span>04</span><h3>Check official reports</h3><p>Only the affiliate provider confirms sales, commission amounts, and payouts.</p></article>
       </div>
     </section>
 
     <section class="disclosure">
       <h3>Transparency & safety</h3>
-      <p>EarnSmart is an independent starter project and is not affiliated with any marketplace. No income is guaranteed. Do not pay a fee to unlock supposed earnings, promise users returns, or collect their passwords, OTPs, or financial details. Add an affiliate disclosure wherever you share affiliate links.</p>
+      <p>EarnSmart is an independent tool and is not affiliated with any marketplace. No income is guaranteed. Never ask users for passwords, OTPs, or payment credentials. Do not promise returns or rewards based on clicks. Add an affiliate disclosure wherever you share affiliate links.</p>
     </section>
   </main>
   <footer><span>© <span id="year"></span> EarnSmart</span><span>Built to start simple.</span></footer>
-  <script src="app.js"></script>
+  <script src="config.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
