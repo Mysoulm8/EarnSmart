@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123b72">
+  <meta name="description" content="EarnSmart helps you organize affiliate links and track clicks.">
+  <title>EarnSmart — Affiliate Hub</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="EarnSmart home"><span class="brand-mark">E</span><span>Earn<span class="brand-light">Smart</span></span></a>
+    <button class="menu-button" id="menuButton" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+    <nav id="nav">
+      <a href="#dashboard">Dashboard</a><a href="#products">Products</a><a href="#referrals">Share</a><a href="#guide">How it works</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero" id="dashboard">
+      <div>
+        <p class="eyebrow">YOUR SIMPLE AFFILIATE WORKSPACE</p>
+        <h1>Small steps.<br><span>Smarter earning.</span></h1>
+        <p class="hero-copy">Keep useful product links in one place, share them with your audience, and monitor your link activity.</p>
+        <a class="primary-button" href="#products">Explore products <span>→</span></a>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="coin coin-one">₱</div><div class="coin coin-two">↗</div>
+        <div class="phone-card"><div class="phone-top"></div><div class="phone-line wide"></div><div class="phone-line"></div><div class="phone-chart"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="phone-pill">Your progress</div></div>
+      </div>
+    </section>
+
+    <section class="notice" role="note">
+      <strong>Starter version:</strong> This app tracks clicks on this device only. It does not yet verify purchases, calculate real commissions, or send payouts. You must join an affiliate program and use its approved tracking links before earning commissions.
+    </section>
+
+    <section class="section-head">
+      <div><p class="eyebrow">OVERVIEW</p><h2>Your activity</h2></div>
+      <span class="local-tag">Saved on this device</span>
+    </section>
+    <section class="stats-grid" aria-label="Activity summary">
+      <article class="stat-card"><span class="stat-icon blue">↗</span><p>Product link clicks</p><strong id="clickCount">0</strong><small>Tracked in this browser</small></article>
+      <article class="stat-card"><span class="stat-icon purple">▣</span><p>Products listed</p><strong id="productCount">3</strong><small>Sample products</small></article>
+      <article class="stat-card"><span class="stat-icon green">₱</span><p>Verified commissions</p><strong>₱0.00</strong><small>Connect an affiliate program first</small></article>
+    </section>
+
+    <section class="section" id="products">
+      <div class="section-head">
+        <div><p class="eyebrow">SHARE & EARN</p><h2>Featured products</h2><p class="muted">Replace sample links with your own approved affiliate URLs.</p></div>
+      </div>
+      <div class="product-grid" id="productGrid"></div>
+      <form class="add-form" id="productForm">
+        <h3>Add your own affiliate link</h3>
+        <div class="form-grid">
+          <label>Product name<input id="productName" maxlength="60" placeholder="e.g. Wireless headphones" required></label>
+          <label>Affiliate URL<input id="productUrl" type="url" placeholder="https://..." required></label>
+        </div>
+        <button class="secondary-button" type="submit">＋ Add product</button>
+        <p class="form-help">Only add links from affiliate programs you have joined. Never paste private account or payment information here.</p>
+      </form>
+    </section>
+
+    <section class="share-panel" id="referrals">
+      <div><p class="eyebrow">GROW YOUR AUDIENCE</p><h2>Share EarnSmart</h2><p class="muted">Invite people to view your product page. This is a share link, not a paid referral or guaranteed-reward program.</p></div>
+      <div class="share-box"><input id="shareUrl" readonly aria-label="Your share link"><button class="primary-button" id="copyShare">Copy link</button></div>
+      <p class="copy-status" id="copyStatus" aria-live="polite"></p>
+    </section>
+
+    <section class="section guide" id="guide">
+      <p class="eyebrow">GET STARTED</p><h2>How EarnSmart works</h2>
+      <div class="steps">
+        <article><span>01</span><h3>Join an affiliate program</h3><p>Apply directly to a legitimate merchant or affiliate network. Approval and terms vary.</p></article>
+        <article><span>02</span><h3>Add approved links</h3><p>Paste your unique affiliate tracking URLs into your product list.</p></article>
+        <article><span>03</span><h3>Share useful recommendations</h3><p>Post helpful, honest product content and clearly disclose that links may earn you a commission.</p></article>
+        <article><span>04</span><h3>Check official reports</h3><p>Purchases, cancellations, commission amounts, and payouts are confirmed by the affiliate provider—not this starter app.</p></article>
+      </div>
+    </section>
+
+    <section class="disclosure">
+      <h3>Transparency & safety</h3>
+      <p>EarnSmart is an independent starter project and is not affiliated with any marketplace. No income is guaranteed. Do not pay a fee to unlock supposed earnings, promise users returns, or collect their passwords, OTPs, or financial details. Add an affiliate disclosure wherever you share affiliate links.</p>
+    </section>
+  </main>
+  <footer><span>© <span id="year"></span> EarnSmart</span><span>Built to start simple.</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>
