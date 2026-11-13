@@ -1,119 +1,298 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#123b72">
-  <meta name="description" content="EarnSmart helps you organize affiliate links and track activity.">
-  <title>EarnSmart — Affiliate Hub</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="EarnSmart - Affiliate earnings and seller marketplace platform.">
+  <title>EarnSmart V3 - Earn Smarter</title>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
+  <script src="./app.js" defer></script>
 </head>
+
 <body>
   <header class="topbar">
-    <a class="brand" href="#" aria-label="EarnSmart home"><span class="brand-mark">E</span><span>Earn<span class="brand-light">Smart</span></span></a>
-    <button class="menu-button" id="menuButton" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-    <nav id="nav">
-      <a href="#dashboard">Dashboard</a><a href="#account">Account</a><a href="#products">Products</a><a href="#guide">How it works</a>
-    </nav>
+    <a class="brand" href="./">
+      <img src="./icon.svg" alt="EarnSmart logo">
+      <span>EarnSmart <small>VERSION 3</small></span>
+    </a>
+    <div class="top-actions">
+      <span id="userEmail"></span>
+      <button id="logoutBtn" class="button secondary hidden" type="button">Logout</button>
+    </div>
   </header>
 
   <main class="container">
-    <section class="hero" id="dashboard">
-      <div>
-        <p class="eyebrow">YOUR SIMPLE AFFILIATE WORKSPACE</p>
-        <h1>Small steps.<br><span>Smarter earning.</span></h1>
-        <p class="hero-copy">Sign in to manage your own affiliate links, share useful recommendations, and monitor link activity across devices.</p>
-        <a class="primary-button" href="#account">Get started <span>→</span></a>
-      </div>
-      <div class="hero-art" aria-hidden="true">
-        <div class="coin coin-one">₱</div><div class="coin coin-two">↗</div>
-        <div class="phone-card"><div class="phone-top"></div><div class="phone-line wide"></div><div class="phone-line"></div><div class="phone-chart"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="phone-pill">Your progress</div></div>
-      </div>
-    </section>
 
-    <section class="notice" role="note">
-      <strong>Important:</strong> EarnSmart organizes affiliate links and records clicks. Clicks are not sales or commissions. Purchases, commission amounts, cancellations, and payouts must be confirmed by the affiliate provider. No income is guaranteed.
-    </section>
+    <!-- Authentication -->
+    <section id="authSection" class="auth-layout">
+      <div class="welcome-panel">
+        <span class="eyebrow">YOUR DIGITAL INCOME PLATFORM</span>
+        <h1>Earn smarter.<br>Grow together.</h1>
+        <p>Manage your affiliate links, promote marketplace products, track commissions, and request payouts in one place.</p>
+        <div class="feature-list">
+          <p>✓ Affiliate product management</p>
+          <p>✓ Seller and promoter marketplace</p>
+          <p>✓ Commission tracking</p>
+          <p>✓ Payout request management</p>
+        </div>
+      </div>
 
-    <section class="section" id="account">
-      <div class="section-head"><div><p class="eyebrow">YOUR ACCOUNT</p><h2>Sign in or create an account</h2></div><span class="local-tag" id="authStatus">Not signed in</span></div>
       <div class="auth-card">
-        <div id="authForms">
-          <form id="signupForm" class="auth-form">
-            <h3>Create your free account</h3>
-            <label>Your name<input id="signupName" maxlength="80" autocomplete="name" required></label>
-            <label>Email address<input id="signupEmail" type="email" autocomplete="email" required></label>
-            <label>Password<input id="signupPassword" type="password" minlength="8" autocomplete="new-password" required><small>Use at least 8 characters.</small></label>
-            <button class="primary-button" type="submit">Create account</button>
-          </form>
-          <form id="loginForm" class="auth-form">
-            <h3>Already registered?</h3>
-            <label>Email address<input id="loginEmail" type="email" autocomplete="email" required></label>
-            <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
-            <button class="secondary-button" type="submit">Sign in</button>
-          </form>
+        <div class="tabs">
+          <button id="showLoginBtn" class="tab active" type="button">Login</button>
+          <button id="showSignupBtn" class="tab" type="button">Create Account</button>
         </div>
-        <div id="signedInPanel" hidden>
-          <h3>You're signed in</h3>
-          <p id="welcomeText" class="muted"></p>
-          <button class="secondary-button" id="logoutButton" type="button">Sign out</button>
-        </div>
-        <p id="authMessage" class="copy-status" aria-live="polite"></p>
+
+        <form id="loginForm">
+          <h2>Welcome back</h2>
+          <label for="loginEmail">Email address</label>
+          <input id="loginEmail" type="email" autocomplete="email" required>
+
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+
+          <button class="button primary full" type="submit">Login</button>
+        </form>
+
+        <form id="signupForm" class="hidden">
+          <h2>Create your account</h2>
+          <label for="signupName">Full name</label>
+          <input id="signupName" type="text" autocomplete="name" required>
+
+          <label for="signupEmail">Email address</label>
+          <input id="signupEmail" type="email" autocomplete="email" required>
+
+          <label for="signupPassword">Password</label>
+          <input id="signupPassword" type="password" minlength="8" autocomplete="new-password" required>
+
+          <button class="button primary full" type="submit">Create Account</button>
+        </form>
+
+        <p id="authMessage" class="message" role="status"></p>
       </div>
     </section>
 
-    <section class="section-head">
-      <div><p class="eyebrow">OVERVIEW</p><h2>Your activity</h2></div>
-      <span class="local-tag" id="dataStatus">Sign in to load cloud data</span>
-    </section>
-    <section class="stats-grid" aria-label="Activity summary">
-      <article class="stat-card"><span class="stat-icon blue">↗</span><p>Product link clicks</p><strong id="clickCount">0</strong><small>Clicks recorded for your account</small></article>
-      <article class="stat-card"><span class="stat-icon purple">▣</span><p>Products listed</p><strong id="productCount">0</strong><small>Your saved products</small></article>
-      <article class="stat-card"><span class="stat-icon green">₱</span><p>Verified commissions</p><strong>₱0.00</strong><small>Not connected to an affiliate provider</small></article>
-    </section>
+    <!-- Main application -->
+    <section id="appSection" class="hidden">
 
-    <section class="section" id="products">
-      <div class="section-head">
-        <div><p class="eyebrow">SHARE & EARN</p><h2>Your affiliate products</h2><p class="muted">Sign in to view and manage your cloud-saved products.</p></div>
-      </div>
-      <div class="product-grid" id="productGrid"><p class="muted">Sign in to load your products.</p></div>
-      <form class="add-form" id="productForm">
-        <h3>Add an affiliate link</h3>
-        <div class="form-grid">
-          <label>Product name<input id="productName" maxlength="60" placeholder="e.g. Wireless headphones" required></label>
-          <label>Affiliate URL<input id="productUrl" type="url" placeholder="https://..." required></label>
+      <div class="dashboard-heading">
+        <div>
+          <span class="eyebrow">YOUR EARNING SPACE</span>
+          <h1>Dashboard</h1>
+          <p>Welcome to your EarnSmart account.</p>
         </div>
-        <label>Short description (optional)<input id="productDescription" maxlength="180" placeholder="Why you recommend this product"></label>
-        <button class="secondary-button" type="submit">＋ Add product</button>
-        <p class="form-help">Only add tracking links from affiliate programs that approved you. Your products are private to your account in this version.</p>
-      </form>
-    </section>
-
-    <section class="share-panel" id="referrals">
-      <div><p class="eyebrow">GROW YOUR AUDIENCE</p><h2>Share EarnSmart</h2><p class="muted">Share your public website. Product records are private to each signed-in account in this version.</p></div>
-      <div class="share-box"><input id="shareUrl" readonly aria-label="Your share link"><button class="primary-button" id="copyShare" type="button">Copy link</button></div>
-      <p class="copy-status" id="copyStatus" aria-live="polite"></p>
-    </section>
-
-    <section class="section guide" id="guide">
-      <p class="eyebrow">GET STARTED</p><h2>How EarnSmart works</h2>
-      <div class="steps">
-        <article><span>01</span><h3>Join an affiliate program</h3><p>Apply directly to a legitimate merchant or affiliate network. Approval and terms vary.</p></article>
-        <article><span>02</span><h3>Add approved links</h3><p>Paste your unique affiliate tracking URLs into your private product list.</p></article>
-        <article><span>03</span><h3>Share useful recommendations</h3><p>Post helpful, honest product content and disclose that links may earn you a commission.</p></article>
-        <article><span>04</span><h3>Check official reports</h3><p>Only the affiliate provider confirms sales, commission amounts, and payouts.</p></article>
       </div>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <button class="nav-btn active" data-page="dashboardPage" type="button">Dashboard</button>
+        <button class="nav-btn" data-page="affiliatePage" type="button">My Affiliates</button>
+        <button class="nav-btn" data-page="marketplacePage" type="button">Marketplace</button>
+        <button class="nav-btn" data-page="commissionsPage" type="button">Commissions</button>
+        <button class="nav-btn" data-page="payoutsPage" type="button">Payouts</button>
+        <button class="nav-btn" data-page="adminPage" type="button">Admin</button>
+      </nav>
+
+      <!-- Dashboard -->
+      <section id="dashboardPage" class="page">
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span>My Affiliate Products</span>
+            <strong id="affiliateProductCount">0</strong>
+          </article>
+          <article class="stat-card">
+            <span>Total Clicks</span>
+            <strong id="totalClicks">0</strong>
+          </article>
+          <article class="stat-card">
+            <span>Affiliate Commissions</span>
+            <strong id="affiliateEarnings">₱0.00</strong>
+          </article>
+          <article class="stat-card">
+            <span>Marketplace Earnings</span>
+            <strong id="marketplaceEarnings">₱0.00</strong>
+          </article>
+        </div>
+
+        <div class="content-card">
+          <h2>Welcome to EarnSmart V3</h2>
+          <p>Start by adding your affiliate products or exploring the marketplace.</p>
+          <div class="action-row">
+            <button class="button primary" data-go="affiliatePage" type="button">Add Affiliate Product</button>
+            <button class="button secondary" data-go="marketplacePage" type="button">Explore Marketplace</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Affiliate products -->
+      <section id="affiliatePage" class="page hidden">
+        <div class="section-heading">
+          <div>
+            <h2>My Affiliate Products</h2>
+            <p>Organize your own affiliate links.</p>
+          </div>
+        </div>
+
+        <form id="productForm" class="content-card">
+          <h3>Add a product</h3>
+          <label for="productName">Product name</label>
+          <input id="productName" type="text" required>
+
+          <label for="productUrl">Affiliate link</label>
+          <input id="productUrl" type="url" placeholder="https://..." required>
+
+          <label for="productPrice">Product price (₱)</label>
+          <input id="productPrice" type="number" min="0" step="0.01">
+
+          <button class="button primary" type="submit">Save Product</button>
+          <p id="productMessage" class="message" role="status"></p>
+        </form>
+
+        <div class="content-card">
+          <h3>My products</h3>
+          <div id="productList" class="data-list">
+            <p class="empty-state">Your products will appear here.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Marketplace -->
+      <section id="marketplacePage" class="page hidden">
+        <div class="section-heading">
+          <div>
+            <h2>EarnSmart Marketplace</h2>
+            <p>Discover products listed by sellers and promote them.</p>
+          </div>
+        </div>
+
+        <form id="listingForm" class="content-card">
+          <h3>List a product for sale</h3>
+          <label for="listingName">Product name</label>
+          <input id="listingName" type="text" required>
+
+          <label for="listingDescription">Description</label>
+          <textarea id="listingDescription" rows="3"></textarea>
+
+          <label for="listingPrice">Product price (₱)</label>
+          <input id="listingPrice" type="number" min="0" step="0.01" required>
+
+          <label for="listingCommission">Affiliate commission (₱)</label>
+          <input id="listingCommission" type="number" min="0" step="0.01" required>
+
+          <button class="button primary" type="submit">Submit Listing</button>
+          <p id="listingMessage" class="message" role="status"></p>
+        </form>
+
+        <div class="content-card">
+          <h3>Available marketplace products</h3>
+          <div id="marketplaceList" class="product-grid">
+            <p class="empty-state">Marketplace products will appear here.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Commissions -->
+      <section id="commissionsPage" class="page hidden">
+        <div class="section-heading">
+          <div>
+            <h2>My Commissions</h2>
+            <p>Review recorded affiliate and marketplace earnings.</p>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Affiliate commissions</h3>
+          <div id="affiliateCommissionList" class="data-list">
+            <p class="empty-state">No commission records loaded.</p>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Marketplace commissions</h3>
+          <div id="marketplaceCommissionList" class="data-list">
+            <p class="empty-state">No commission records loaded.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Payouts -->
+      <section id="payoutsPage" class="page hidden">
+        <div class="section-heading">
+          <div>
+            <h2>Payout Requests</h2>
+            <p>Request withdrawal of eligible earnings.</p>
+          </div>
+        </div>
+
+        <form id="payoutForm" class="content-card">
+          <h3>Request a payout</h3>
+          <label for="payoutAmount">Amount (₱)</label>
+          <input id="payoutAmount" type="number" min="1" step="0.01" required>
+
+          <label for="payoutMethod">Payment method</label>
+          <select id="payoutMethod" required>
+            <option value="">Choose a method</option>
+            <option value="GCash">GCash</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Maya">Maya</option>
+          </select>
+
+          <label for="payoutDetails">Payment account details</label>
+          <input id="payoutDetails" type="text" placeholder="Enter your payment details" required>
+
+          <button class="button primary" type="submit">Submit Payout Request</button>
+          <p id="payoutMessage" class="message" role="status"></p>
+          <p class="small-note">Payout requests require manual review and approval. Submitting a request does not guarantee payment.</p>
+        </form>
+
+        <div class="content-card">
+          <h3>My payout history</h3>
+          <div id="payoutList" class="data-list">
+            <p class="empty-state">Your payout requests will appear here.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Admin -->
+      <section id="adminPage" class="page hidden">
+        <div class="section-heading">
+          <div>
+            <h2>Admin Dashboard</h2>
+            <p>Restricted area for authorized administrators.</p>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Marketplace listings</h3>
+          <div id="adminListingList" class="data-list">
+            <p class="empty-state">Admin listing records will appear here.</p>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Payout requests</h3>
+          <div id="adminPayoutList" class="data-list">
+            <p class="empty-state">Admin payout records will appear here.</p>
+          </div>
+        </div>
+
+        <p class="small-note">Admin access must be verified securely by the backend. Hiding this page is not an access-control mechanism.</p>
+      </section>
+
     </section>
 
-    <section class="disclosure">
-      <h3>Transparency & safety</h3>
-      <p>EarnSmart is an independent tool and is not affiliated with any marketplace. No income is guaranteed. Never ask users for passwords, OTPs, or payment credentials. Do not promise returns or rewards based on clicks. Add an affiliate disclosure wherever you share affiliate links.</p>
-    </section>
+    <div id="appMessage" class="global-message" role="status" aria-live="polite"></div>
   </main>
-  <footer><span>© <span id="year"></span> EarnSmart</span><span>Built to start simple.</span></footer>
-  <script src="config.js"></script>
-  <script type="module" src="app.js"></script>
+
+  <footer class="footer">
+    <p>© <span id="currentYear">2026</span> EarnSmart. Earn smarter, grow together.</p>
+  </footer>
 </body>
 </html>
