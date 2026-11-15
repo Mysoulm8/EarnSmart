@@ -40,10 +40,15 @@ let payoutRequests = [];
 // GENERAL HELPERS
 // =====================================================
 
+
 function showMessage(text, isError = false) {
-  $("appMessage").textContent = text;
-  $("appMessage").style.color = isError ? "#c43b43" : "#168451";
+  const message = $("appMessage");
+
+  message.textContent = text;
+  message.style.color = isError ? "#c43b43" : "#168451";
+  message.classList.remove("hidden");
 }
+
 
 function authMessage(text, isError = false) {
   $("authMessage").textContent = text;
