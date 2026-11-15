@@ -272,43 +272,36 @@
           </p>
 
           <form id="listingForm">
-            <label for="listingName">Product name</label>
-            <input
-              id="listingName"
-              type="text"
-              required
-              placeholder="Enter product name"
-            >
+        
+<form id="listingForm">
+  <label for="listingName">Product name</label>
+  <input
+    id="listingName"
+    type="text"
+    required
+    placeholder="Enter product name"
+  >
 
-            <label for="listingDescription">Description</label>
-            <textarea
-              id="listingDescription"
-              rows="4"
-              placeholder="Describe your product"
-            ></textarea>
+  <label for="listingDescription">Description</label>
+  <textarea
+    id="listingDescription"
+    rows="4"
+    placeholder="Describe your product"
+  ></textarea>
 
-            <label for="listingPrice">Product price (₱)</label>
-            <input
-              id="listingPrice"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Enter product price"
-            >
+  <label for="listingAffiliateUrl">Seller's Shopee affiliate URL</label>
+  <input
+    id="listingAffiliateUrl"
+    type="url"
+    required
+    placeholder="Paste the seller's Shopee affiliate link"
+  >
 
-            <label for="listingCommission">Affiliate commission (₱)</label>
-            <input
-              id="listingCommission"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Enter commission amount"
-            >
+  <button class="button primary full" type="submit">
+    Submit Listing
+  </button>
+</form>
 
-            <button class="button primary full" type="submit">
-              Submit Listing
-            </button>
-          </form>
 
           <p id="listingMessage" class="message" aria-live="polite"></p>
         </div>
