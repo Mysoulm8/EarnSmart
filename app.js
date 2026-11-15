@@ -754,14 +754,17 @@ $("listingForm").addEventListener("submit", async event => {
 
   const hostname = new URL(affiliateUrl).hostname.toLowerCase();
 
-  if (
-    hostname !== "shopee.ph" &&
-    !hostname.endsWith(".shopee.ph")
-  ) {
-    $("listingMessage").textContent =
-      "Please enter a Shopee Philippines affiliate link.";
-    return;
-  }
+const allowedHosts = [
+  "shopee.ph",
+  "collshp.com"
+];
+
+if (!allowedHosts.includes(hostname) &&
+    !hostname.endsWith(".shopee.ph")) {
+  $("listingMessage").textContent =
+    "Please enter a valid Shopee or Collshp affiliate link.";
+  return;
+}
 
   $("listingMessage").textContent = "Submitting listing...";
 
