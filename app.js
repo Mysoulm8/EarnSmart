@@ -1,6 +1,10 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
+// =====================================================
+// EARNSMART V3 - APPLICATION
+// =====================================================
+
 const $ = (id) => document.getElementById(id);
 
 const SUPABASE_URL = window.EARNSMART_SUPABASE_URL;
@@ -22,6 +26,10 @@ let listings = [];
 let affiliateCommissions = [];
 let marketplaceCommissions = [];
 let payoutRequests = [];
+
+// =====================================================
+// GENERAL HELPERS
+// =====================================================
 
 function showMessage(text, isError = false) {
   $("appMessage").textContent = text;
@@ -47,7 +55,12 @@ function money(value) {
 function safeUrl(value) {
   try {
     const url = new URL(value);
-    return ["https:", "http:"].includes(url.protocol) ? url.href : null;
+
+    if (url.protocol !== "https:") {
+      return null;
+    }
+
+    return url.href;
   } catch {
     return null;
   }
@@ -55,37 +68,71 @@ function safeUrl(value) {
 
 function makeElement(tag, className, text) {
   const element = document.createElement(tag);
-  if (className) element.className = className;
-  if (text !== undefined) element.textContent = text;
+
+  if (className) {
+    element.className = className;
+  }
+
+  if (text !== undefined) {
+    element.textContent = text;
+  }
+
   return element;
 }
 
 function emptyMessage(container, text) {
-  container.replaceChildren(makeElement("p", "empty-state", text));
+  container.replaceChildren(
+    makeElement("p", "empty-state", text)
+  );
 }
 
-function showPage(pageId) {
-  document.querySelectorAll(".page").forEach(page => {
+// =====================================================
+// NAVIGATION
+// =====================================================
+
+function showPage(pageName) {
+  const pageId = pageName.endsWith("Page")
+    ? pageName
+    : `${pageName}Page`;
+
+  document.querySelectorAll(".app-page").forEach(page => {
     page.classList.toggle("hidden", page.id !== pageId);
   });
 
   document.querySelectorAll(".nav-btn").forEach(button => {
-    button.classList.toggle("active", button.dataset.page === pageId);
+    const buttonPage = button.dataset.page;
+
+    button.classList.toggle(
+      "active",
+      buttonPage === pageName ||
+      buttonPage === pageId
+    );
   });
 
-  if (pageId === "marketplacePage") loadListings();
-  if (pageId === "commissionsPage") loadCommissions();
-  if (pageId === "payoutsPage") loadPayouts();
-  if (pageId === "adminPage") showMessage("Admin data requires verified administrator access.");
+  if (pageId === "marketplacePage") {
+    loadListings();
+  }
+
+  if (pageId === "commissionsPage") {
+    loadCommissions();
+  }
+
+  if (pageId === "payoutsPage") {
+    loadPayouts();
+  }
+
+  if (pageId === "adminPage") {
+    showMessage(
+      "Admin data requires verified administrator access."
+    );
+  }
 }
 
 function navigateSetup() {
   document.querySelectorAll(".nav-btn").forEach(button => {
-    button.addEventListener("click", () => showPage(button.dataset.page));
-  });
-
-  document.querySelectorAll("[data-go]").forEach(button => {
-    button.addEventListener("click", () => showPage(button.dataset.go));
+    button.addEventListener("click", () => {
+      showPage(button.dataset.page);
+    });
   });
 
   $("currentYear").textContent = new Date().getFullYear();
@@ -93,6 +140,7 @@ function navigateSetup() {
   $("showLoginBtn").addEventListener("click", () => {
     setVisible("loginForm", true);
     setVisible("signupForm", false);
+
     $("showLoginBtn").classList.add("active");
     $("showSignupBtn").classList.remove("active");
   });
@@ -100,10 +148,15 @@ function navigateSetup() {
   $("showSignupBtn").addEventListener("click", () => {
     setVisible("loginForm", false);
     setVisible("signupForm", true);
+
     $("showSignupBtn").classList.add("active");
     $("showLoginBtn").classList.remove("active");
   });
 }
+
+// =====================================================
+// ACCOUNT DISPLAY
+// =====================================================
 
 function setSignedIn(user) {
   currentUser = user;
@@ -120,33 +173,46 @@ function setSignedIn(user) {
     affiliateCommissions = [];
     marketplaceCommissions = [];
     payoutRequests = [];
+
     renderProducts();
     renderDashboard();
-    return;
+
+    showPage("dashboard");
   }
 }
+
+// =====================================================
+// AFFILIATE PRODUCTS
+// =====================================================
 
 async function loadProducts() {
   if (!currentUser) return;
 
   const { data, error } = await supabase
     .from("products")
-    .select("id,name,destination_url,description,is_active,created_at")
+    .select(
+      "id,name,destination_url,description,is_active,created_at"
+    )
     .eq("user_id", currentUser.id)
     .order("created_at", { ascending: false });
 
   if (error) {
-    showMessage("Could not load affiliate products: " + error.message, true);
+    showMessage(
+      "Could not load affiliate products: " + error.message,
+      true
+    );
     return;
   }
 
   products = data || [];
+
   renderProducts();
   renderDashboard();
 }
 
 function renderProducts() {
   const container = $("productList");
+
   container.replaceChildren();
 
   if (!currentUser || !products.length) {
@@ -155,48 +221,73 @@ function renderProducts() {
   }
 
   products.forEach(product => {
-    const card = makeElement("article", "product-card");
+    const card = makeElement("article", "content-card");
+
     const title = makeElement("h3", "", product.name);
+
     const description = makeElement(
       "p",
       "",
       product.description || "Your affiliate product"
     );
 
-    const open = makeElement("button", "button secondary", "Open product link");
+    const open = makeElement(
+      "button",
+      "button secondary",
+      "Open product link"
+    );
+
     open.type = "button";
 
     open.addEventListener("click", async () => {
       const url = safeUrl(product.destination_url);
 
-      if (!url || new URL(url).protocol !== "https:") {
+      if (!url) {
         showMessage("Invalid or unsafe product link.", true);
         return;
       }
 
       const tab = window.open("about:blank", "_blank");
 
-      const { error } = await supabase.from("click_events").insert({
-        user_id: currentUser.id,
-        product_id: product.id
-      });
+      try {
+        const { error } = await supabase
+          .from("click_events")
+          .insert({
+            user_id: currentUser.id,
+            product_id: product.id
+          });
 
-      if (error) {
+        if (error) {
+          if (tab) tab.close();
+
+          showMessage(
+            "Click could not be recorded: " + error.message,
+            true
+          );
+          return;
+        }
+
+        if (tab) {
+          tab.location.href = url;
+        } else {
+          window.location.href = url;
+        }
+
+        await loadStats();
+
+      } catch (error) {
         if (tab) tab.close();
-        showMessage("Click could not be recorded: " + error.message, true);
-        return;
-      }
 
-      if (tab) {
-        tab.location.href = url;
-      } else {
-        window.location.href = url;
+        showMessage(error.message, true);
       }
-
-      await loadStats();
     });
 
-    const remove = makeElement("button", "button secondary", "Remove");
+    const remove = makeElement(
+      "button",
+      "button secondary",
+      "Remove"
+    );
+
     remove.type = "button";
 
     remove.addEventListener("click", async () => {
@@ -214,23 +305,31 @@ function renderProducts() {
       }
 
       await loadProducts();
+
       showMessage("Product removed.");
     });
 
     card.append(title, description, open, remove);
+
     container.append(card);
   });
 }
+
+// =====================================================
+// DASHBOARD STATISTICS
+// =====================================================
 
 async function loadStats() {
   if (!currentUser) return;
 
   const [productResult, clickResult] = await Promise.all([
-    supabase.from("products")
+    supabase
+      .from("products")
       .select("id", { count: "exact", head: true })
       .eq("user_id", currentUser.id),
 
-    supabase.from("click_events")
+    supabase
+      .from("click_events")
       .select("id", { count: "exact", head: true })
       .eq("user_id", currentUser.id)
   ]);
@@ -240,8 +339,16 @@ async function loadStats() {
     return;
   }
 
-  $("affiliateProductCount").textContent = productResult.count ?? 0;
-  $("totalClicks").textContent = clickResult.count ?? 0;
+  $("affiliateProductCount").textContent =
+    productResult.count ?? 0;
+
+  $("totalClicks").textContent =
+    clickResult.count ?? 0;
+}
+
+function renderDashboard() {
+  $("affiliateProductCount").textContent =
+    products.length;
 }
 
 async function loadDashboardEarnings() {
@@ -250,13 +357,13 @@ async function loadDashboardEarnings() {
   $("affiliateEarnings").textContent = "Unavailable";
   $("marketplaceEarnings").textContent = "Unavailable";
 
-  // Earnings are intentionally not calculated from unverified browser input.
-  // We will connect verified commission records after confirming the database schema.
+  // Earnings will be connected to verified commission records
+  // after database columns and access policies are checked.
 }
 
-function renderDashboard() {
-  $("affiliateProductCount").textContent = products.length;
-}
+// =====================================================
+// MARKETPLACE
+// =====================================================
 
 async function loadListings() {
   if (!currentUser) return;
@@ -267,44 +374,74 @@ async function loadListings() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    emptyMessage($("marketplaceList"), "Could not load marketplace listings: " + error.message);
+    emptyMessage(
+      $("marketplaceList"),
+      "Could not load marketplace listings: " + error.message
+    );
     return;
   }
 
   listings = data || [];
+
   renderListings();
 }
 
 function renderListings() {
   const container = $("marketplaceList");
+
   container.replaceChildren();
 
   if (!listings.length) {
-    emptyMessage(container, "No marketplace products available yet.");
+    emptyMessage(
+      container,
+      "No marketplace products available yet."
+    );
     return;
   }
 
   listings.forEach(item => {
     const card = makeElement("article", "content-card");
-    const title = makeElement("h3", "", item.name || item.title || "Marketplace product");
-    const description = makeElement("p", "", item.description || "Marketplace listing");
-    const price = makeElement("p", "", "Price: " + money(item.price));
 
-    card.append(title, description, price);
-
-    const status = makeElement("p", "small-note",
-      "Promotional links will be enabled after marketplace referral tracking is configured."
+    const title = makeElement(
+      "h3",
+      "",
+      item.name || item.title || "Marketplace product"
     );
-    card.append(status);
+
+    const description = makeElement(
+      "p",
+      "",
+      item.description || "Marketplace listing"
+    );
+
+    const price = makeElement(
+      "p",
+      "",
+      "Price: " + money(item.price)
+    );
+
+    const note = makeElement(
+      "p",
+      "small-note",
+      "Referral links will be enabled after marketplace tracking is configured."
+    );
+
+    card.append(title, description, price, note);
+
     container.append(card);
   });
 }
 
+// =====================================================
+// COMMISSIONS
+// =====================================================
+
 async function loadCommissions() {
   if (!currentUser) return;
 
-  // Read-only commission display. Actual commission records must be verified
-  // by a trusted server or administrator, not created by ordinary users.
+  // These queries are read-only.
+  // Commission records must be verified by a trusted
+  // server-side process or authorized administrator.
 
   const affiliateResult = await supabase
     .from("affiliate_commissions")
@@ -317,9 +454,13 @@ async function loadCommissions() {
     .order("created_at", { ascending: false });
 
   if (affiliateResult.error) {
-    emptyMessage($("affiliateCommissionList"), "Could not load affiliate commissions.");
+    emptyMessage(
+      $("affiliateCommissionList"),
+      "Could not load affiliate commissions."
+    );
   } else {
     affiliateCommissions = affiliateResult.data || [];
+
     renderRecords(
       $("affiliateCommissionList"),
       affiliateCommissions,
@@ -328,9 +469,13 @@ async function loadCommissions() {
   }
 
   if (marketplaceResult.error) {
-    emptyMessage($("marketplaceCommissionList"), "Could not load marketplace commissions.");
+    emptyMessage(
+      $("marketplaceCommissionList"),
+      "Could not load marketplace commissions."
+    );
   } else {
     marketplaceCommissions = marketplaceResult.data || [];
+
     renderRecords(
       $("marketplaceCommissionList"),
       marketplaceCommissions,
@@ -351,12 +496,32 @@ function renderRecords(container, records, emptyText) {
 
   records.forEach(record => {
     const item = makeElement("article", "content-card");
-    const amount = makeElement("strong", "", money(record.commission_amount));
-    const status = makeElement("p", "", "Status: " + (record.status || "Pending"));
+
+    const amount = makeElement(
+      "strong",
+      "",
+      money(
+        record.commission_amount ??
+        record.amount ??
+        0
+      )
+    );
+
+    const status = makeElement(
+      "p",
+      "",
+      "Status: " + (record.status || "Pending")
+    );
+
     item.append(amount, status);
+
     container.append(item);
   });
 }
+
+// =====================================================
+// PAYOUT HISTORY
+// =====================================================
 
 async function loadPayouts() {
   if (!currentUser) return;
@@ -367,35 +532,43 @@ async function loadPayouts() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    emptyMessage($("payoutList"), "Could not load payout history.");
+    emptyMessage(
+      $("payoutList"),
+      "Could not load payout history."
+    );
     return;
   }
 
   payoutRequests = data || [];
+
   renderRecords(
     $("payoutList"),
-    payoutRequests.map(item => ({
-      ...item,
-      commission_amount: item.amount,
-      status: item.status
-    })),
+    payoutRequests,
     "No payout requests yet."
   );
 }
 
-// Authentication
+// =====================================================
+// REGISTRATION
+// =====================================================
 
 $("signupForm").addEventListener("submit", async event => {
   event.preventDefault();
 
-  if (!supabase) return;
+  if (!supabase) {
+    authMessage("Supabase configuration is missing.", true);
+    return;
+  }
 
   const displayName = $("signupName").value.trim();
   const email = $("signupEmail").value.trim();
   const password = $("signupPassword").value;
 
   if (password.length < 8) {
-    authMessage("Password must contain at least 8 characters.", true);
+    authMessage(
+      "Password must contain at least 8 characters.",
+      true
+    );
     return;
   }
 
@@ -405,7 +578,9 @@ $("signupForm").addEventListener("submit", async event => {
     email,
     password,
     options: {
-      data: { display_name: displayName }
+      data: {
+        display_name: displayName
+      }
     }
   });
 
@@ -418,16 +593,26 @@ $("signupForm").addEventListener("submit", async event => {
 
   if (data.session) {
     await refreshAccount(data.user);
+
     authMessage("Account created successfully.");
   } else {
-    authMessage("Check your email to confirm your account.");
+    authMessage(
+      "Check your email to confirm your account."
+    );
   }
 });
+
+// =====================================================
+// LOGIN
+// =====================================================
 
 $("loginForm").addEventListener("submit", async event => {
   event.preventDefault();
 
-  if (!supabase) return;
+  if (!supabase) {
+    authMessage("Supabase configuration is missing.", true);
+    return;
+  }
 
   authMessage("Signing in...");
 
@@ -442,9 +627,15 @@ $("loginForm").addEventListener("submit", async event => {
   }
 
   $("loginForm").reset();
+
   await refreshAccount(data.user);
+
   authMessage("Welcome back!");
 });
+
+// =====================================================
+// LOGOUT
+// =====================================================
 
 $("logoutBtn").addEventListener("click", async () => {
   if (!supabase) return;
@@ -457,8 +648,13 @@ $("logoutBtn").addEventListener("click", async () => {
   }
 
   setSignedIn(null);
+
   authMessage("You have signed out.");
 });
+
+// =====================================================
+// REFRESH ACCOUNT
+// =====================================================
 
 async function refreshAccount(user) {
   setSignedIn(user);
@@ -471,29 +667,50 @@ async function refreshAccount(user) {
   ]);
 }
 
-// Add personal affiliate product
+// =====================================================
+// ADD AFFILIATE PRODUCT
+// =====================================================
 
 $("productForm").addEventListener("submit", async event => {
   event.preventDefault();
 
-  if (!currentUser) return;
-
-  const name = $("productName").value.trim();
-  const url = safeUrl($("productUrl").value.trim());
-
-  if (!name || !url || new URL(url).protocol !== "https:") {
-    $("productMessage").textContent = "Enter a product name and valid HTTPS link.";
+  if (!currentUser) {
+    $("productMessage").textContent =
+      "Please log in first.";
     return;
   }
 
-  // Existing products table structure is retained.
-  // No unverified commission values are created here.
+  const name = $("productName").value.trim();
+  const url = safeUrl($("productUrl").value.trim());
+  const enteredPrice = $("productPrice").value.trim();
 
-  const { error } = await supabase.from("products").insert({
-    user_id: currentUser.id,
-    name,
-    destination_url: url
-  });
+  if (!name || !url) {
+    $("productMessage").textContent =
+      "Enter a product name and valid HTTPS link.";
+    return;
+  }
+
+  if (
+    enteredPrice &&
+    (!Number.isFinite(Number(enteredPrice)) ||
+      Number(enteredPrice) < 0)
+  ) {
+    $("productMessage").textContent =
+      "Please enter a valid product price.";
+    return;
+  }
+
+  // Price is not saved yet because the products table's
+  // price column has not been verified.
+  // Do not guess database column names.
+
+  const { error } = await supabase
+    .from("products")
+    .insert({
+      user_id: currentUser.id,
+      name,
+      destination_url: url
+    });
 
   if (error) {
     $("productMessage").textContent = error.message;
@@ -501,55 +718,65 @@ $("productForm").addEventListener("submit", async event => {
   }
 
   $("productForm").reset();
-  $("productMessage").textContent = "Product saved successfully.";
+
+  $("productMessage").textContent = enteredPrice
+    ? "Product saved. Price storage will be enabled after database verification."
+    : "Product saved successfully.";
 
   await loadProducts();
   await loadStats();
 });
 
-// Submit marketplace listing
+// =====================================================
+// MARKETPLACE LISTING SUBMISSION
+// =====================================================
 
 $("listingForm").addEventListener("submit", async event => {
   event.preventDefault();
 
-  if (!currentUser) return;
-
-  const name = $("listingName").value.trim();
-  const description = $("listingDescription").value.trim();
-  const price = Number($("listingPrice").value);
-  const commission = Number($("listingCommission").value);
-
-  if (!name || price <= 0 || commission < 0 || commission > price) {
-    $("listingMessage").textContent = "Please check the product price and commission.";
+  if (!currentUser) {
+    $("listingMessage").textContent =
+      "Please log in first.";
     return;
   }
 
-  // Listing submission is not allowed until we confirm the actual
-  // marketplace_listings columns and seller approval rules.
   $("listingMessage").textContent =
-    "Listing submission will be enabled after the marketplace database is verified.";
+    "Listing submission is not enabled yet. We must verify the marketplace database columns and seller approval rules first.";
 });
 
-// Payout request
+// =====================================================
+// PAYOUT REQUEST
+// =====================================================
 
 $("payoutForm").addEventListener("submit", async event => {
   event.preventDefault();
 
-  if (!currentUser) return;
+  if (!currentUser) {
+    $("payoutMessage").textContent =
+      "Please log in first.";
+    return;
+  }
 
   $("payoutMessage").textContent =
-    "Payout submission is temporarily disabled until eligible balances and secure payout rules are configured.";
+    "Payout submission is temporarily disabled until eligible balances and secure payout rules are verified.";
 });
 
-// Initialization
+// =====================================================
+// INITIALIZATION
+// =====================================================
 
 navigateSetup();
 
 if (!configured) {
-  authMessage("Supabase configuration is missing. Please check config.js.");
+  authMessage(
+    "Supabase configuration is missing. Please check config.js.",
+    true
+  );
 } else {
   supabase.auth.onAuthStateChange((_event, session) => {
-    setTimeout(() => refreshAccount(session?.user ?? null), 0);
+    setTimeout(() => {
+      refreshAccount(session?.user ?? null);
+    }, 0);
   });
 
   supabase.auth.getSession().then(({ data, error }) => {
