@@ -502,6 +502,14 @@ function renderListings() {
       } catch (error) {
         console.error("Referral creation error:", error);
 
+if (error.context) {
+  try {
+    console.error("Server response:", await error.context.json());
+  } catch (e) {
+    console.error("Could not read server response:", e);
+  }
+}
+
         showMessage(
           "Could not create referral: " +
           (error.message || "Please try again."),
