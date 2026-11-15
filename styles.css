@@ -17,6 +17,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
@@ -34,6 +38,11 @@ select {
 
 button {
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .hidden {
@@ -177,6 +186,10 @@ select {
   border: 1px solid var(--border);
   border-radius: 9px;
   outline: none;
+}
+
+textarea {
+  resize: vertical;
 }
 
 input:focus,
