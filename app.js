@@ -386,6 +386,7 @@ async function loadListings() {
   renderListings();
 }
 
+
 function renderListings() {
   const container = $("marketplaceList");
 
@@ -405,7 +406,7 @@ function renderListings() {
     const title = makeElement(
       "h3",
       "",
-      item.name || item.title || "Marketplace product"
+      item.name || "Marketplace product"
     );
 
     const description = makeElement(
@@ -414,23 +415,106 @@ function renderListings() {
       item.description || "Marketplace listing"
     );
 
-    const price = makeElement(
-      "p",
-      "",
-      "Price: " + money(item.price)
-    );
-
     const note = makeElement(
       "p",
       "small-note",
-      "Referral links will be enabled after marketplace tracking is configured."
+      "Share your unique referral link with customers."
     );
 
-    card.append(title, description, price, note);
+    const createButton = makeElement(
+      "button",
+      "button primary",
+      "Create Referral Link"
+    );
+
+    createButton.type = "button";
+
+    createButton.addEventListener("click", async () => {
+      createButton.disabled = true;
+      createButton.textContent = "Creating...";
+
+      try {
+        const { data, error } = await supabase.functions.invoke(
+          "create-marketplace-referral",
+          {
+            body: {
+              listing_id: item.id
+            }
+          }
+        );
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data || !data.success || !data.referral_url) {
+          throw new Error(
+            data?.error || "Could not create referral link."
+          );
+        }
+
+        const result = makeElement(
+          "p",
+          "small-note",
+          "Your referral link is ready:"
+        );
+
+        const linkInput = document.createElement("input");
+        linkInput.type = "text";
+        linkInput.readOnly = true;
+        linkInput.value = data.referral_url;
+        linkInput.style.width = "100%";
+
+        const copyButton = makeElement(
+          "button",
+          "button secondary",
+          "Copy Referral Link"
+        );
+
+        copyButton.type = "button";
+
+        copyButton.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(
+              data.referral_url
+            );
+            copyButton.textContent = "Copied!";
+          } catch {
+            linkInput.select();
+            document.execCommand("copy");
+            copyButton.textContent = "Copied!";
+          }
+        });
+
+        card.append(result, linkInput, copyButton);
+
+        createButton.textContent = "Referral Created";
+
+      } catch (error) {
+        console.error("Referral creation error:", error);
+
+        showMessage(
+          "Could not create referral: " +
+          (error.message || "Please try again."),
+          true
+        );
+
+        createButton.disabled = false;
+        createButton.textContent = "Try Again";
+      }
+    });
+
+    card.append(
+      title,
+      description,
+      note,
+      createButton
+    );
 
     container.append(card);
   });
 }
+
 
 // =====================================================
 // COMMISSIONS
