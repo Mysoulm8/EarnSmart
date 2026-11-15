@@ -510,11 +510,17 @@ if (error.context) {
   }
 }
 
-        showMessage(
-          "Could not create referral: " +
-          (error.message || "Please try again."),
-          true
-        );
+        let details = error.message || "Please try again.";
+
+if (error.context) {
+  try {
+    details = await error.context.text();
+  } catch (e) {
+    console.error("Could not read error details:", e);
+  }
+}
+
+showMessage("Referral error: " + details, true);
 
         createButton.disabled = false;
         createButton.textContent = "Try Again";
