@@ -47,6 +47,11 @@ function showMessage(text, isError = false) {
   message.textContent = text;
   message.style.color = isError ? "#c43b43" : "#168451";
   message.classList.remove("hidden");
+
+  message.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
 }
 
 
