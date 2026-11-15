@@ -8,6 +8,15 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const $ = (id) => document.getElementById(id);
 
 const SUPABASE_URL = window.EARNSMART_SUPABASE_URL;
+// EarnSmart short referral link redirect
+const shortReferralCode =
+  new URLSearchParams(window.location.search).get("go");
+
+if (shortReferralCode) {
+  window.location.replace(
+    `${SUPABASE_URL}/functions/v1/open-marketplace-referral?ref=${encodeURIComponent(shortReferralCode)}`
+  );
+}
 const SUPABASE_KEY = window.EARNSMART_SUPABASE_PUBLISHABLE_KEY;
 
 const configured = Boolean(
