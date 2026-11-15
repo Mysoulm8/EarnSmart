@@ -610,7 +610,8 @@ async function loadPromoterDashboard() {
     emptyMessage(list, "Could not load referral links.");
     return;
   }
-
+console.log("Promoter dashboard user:", currentUser.id);
+console.log("Promoter dashboard referrals:", { referrals, error });
   const myReferrals = referrals || [];
 
   $("promoterReferralCount").textContent = myReferrals.length;
