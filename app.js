@@ -41,6 +41,7 @@ let payoutRequests = [];
 // =====================================================
 
 
+
 function showMessage(text, isError = false) {
   const message = $("appMessage");
 
@@ -52,7 +53,14 @@ function showMessage(text, isError = false) {
     behavior: "smooth",
     block: "center"
   });
+
+  setTimeout(() => {
+    if (message.textContent === text) {
+      message.textContent = "";
+    }
+  }, 3000);
 }
+
 
 
 function authMessage(text, isError = false) {
