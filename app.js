@@ -42,8 +42,13 @@ let payoutRequests = [];
 
 
 
+
+let messageTimer;
+
 function showMessage(text, isError = false) {
   const message = $("appMessage");
+
+  clearTimeout(messageTimer);
 
   message.textContent = text;
   message.style.color = isError ? "#c43b43" : "#168451";
@@ -54,12 +59,11 @@ function showMessage(text, isError = false) {
     block: "center"
   });
 
-  setTimeout(() => {
-    if (message.textContent === text) {
-      message.textContent = "";
-    }
+  messageTimer = setTimeout(() => {
+    message.textContent = "";
   }, 3000);
 }
+
 
 
 
