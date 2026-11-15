@@ -727,6 +727,7 @@ $("productForm").addEventListener("submit", async event => {
   await loadStats();
 });
 
+
 // =====================================================
 // MARKETPLACE LISTING SUBMISSION
 // =====================================================
@@ -735,13 +736,57 @@ $("listingForm").addEventListener("submit", async event => {
   event.preventDefault();
 
   if (!currentUser) {
-    $("listingMessage").textContent =
-      "Please log in first.";
+    $("listingMessage").textContent = "Please log in first.";
     return;
   }
 
+  const name = $("listingName").value.trim();
+  const description = $("listingDescription").value.trim();
+  const affiliateUrl = safeUrl(
+    $("listingAffiliateUrl").value.trim()
+  );
+
+  if (!name || !affiliateUrl) {
+    $("listingMessage").textContent =
+      "Enter a product name and valid HTTPS Shopee affiliate URL.";
+    return;
+  }
+
+  const hostname = new URL(affiliateUrl).hostname.toLowerCase();
+
+  if (
+    hostname !== "shopee.ph" &&
+    !hostname.endsWith(".shopee.ph")
+  ) {
+    $("listingMessage").textContent =
+      "Please enter a Shopee Philippines affiliate link.";
+    return;
+  }
+
+  $("listingMessage").textContent = "Submitting listing...";
+
+  const { error } = await supabase
+    .from("marketplace_listings")
+    .insert({
+      seller_id: currentUser.id,
+      name,
+      affiliate_url: affiliateUrl,
+      description,
+      is_active: true
+    });
+
+  if (error) {
+    $("listingMessage").textContent =
+      "Could not submit listing: " + error.message;
+    return;
+  }
+
+  $("listingForm").reset();
+
   $("listingMessage").textContent =
-    "Listing submission is not enabled yet. We must verify the marketplace database columns and seller approval rules first.";
+    "Your marketplace product was submitted successfully!";
+
+  await loadListings();
 });
 
 // =====================================================
