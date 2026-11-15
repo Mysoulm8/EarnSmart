@@ -590,7 +590,117 @@ async function loadCommissions() {
     );
   }
 
-  await loadDashboardEarnings();
+ await loadDashboardEarnings();
+await loadPromoterDashboard();
+}
+
+async function loadPromoterDashboard() {
+  if (!currentUser) return;
+
+  const list = $("promoterReferralList");
+
+  const { data: referrals, error } = await supabase
+    .from("marketplace_referrals")
+    .select("id, referral_code, listing_id, created_at, is_active")
+    .eq("promoter_id", currentUser.id)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    emptyMessage(list, "Could not load referral links.");
+    return;
+  }
+
+  const myReferrals = referrals || [];
+
+  $("promoterReferralCount").textContent = myReferrals.length;
+
+  if (myReferrals.length === 0) {
+    $("promoterClickCount").textContent = "0";
+    emptyMessage(list, "You have no referral links yet.");
+    return;
+  }
+
+  const referralIds = myReferrals.map(item => item.id);
+  const listingIds = [...new Set(myReferrals.map(item => item.listing_id))];
+
+  const [clickResult, listingResult] = await Promise.all([
+    supabase
+      .from("marketplace_click_events")
+      .select("referral_id")
+      .in("referral_id", referralIds),
+
+    supabase
+      .from("marketplace_listings")
+      .select("id, name")
+      .in("id", listingIds)
+  ]);
+
+  if (clickResult.error || listingResult.error) {
+    emptyMessage(list, "Could not load referral details.");
+    return;
+  }
+
+  const clicks = clickResult.data || [];
+  const listingRows = listingResult.data || [];
+
+  const listingNames = {};
+  listingRows.forEach(item => {
+    listingNames[item.id] = item.name;
+  });
+
+  const clickCounts = {};
+  clicks.forEach(item => {
+    clickCounts[item.referral_id] =
+      (clickCounts[item.referral_id] || 0) + 1;
+  });
+
+  $("promoterClickCount").textContent = clicks.length;
+
+  list.replaceChildren();
+
+  myReferrals.forEach(referral => {
+    const card = document.createElement("div");
+    card.className = "data-item";
+
+    const name = document.createElement("strong");
+    name.textContent =
+      listingNames[referral.listing_id] || "Marketplace listing";
+
+    const count = document.createElement("p");
+    count.textContent =
+      "Clicks: " + (clickCounts[referral.id] || 0);
+
+    const url =
+      `https://mysoulm8.github.io/EarnSmart/?go=${referral.referral_code}`;
+
+    const link = document.createElement("input");
+    link.type = "text";
+    link.value = url;
+    link.readOnly = true;
+
+    const copyButton = document.createElement("button");
+    copyButton.type = "button";
+    copyButton.textContent = "Copy Referral Link";
+
+    copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        showMessage("Referral link copied!");
+      } catch {
+        link.select();
+        showMessage("Select and copy the referral link.", true);
+      }
+    });
+
+    card.append(name, count, link, copyButton);
+    list.appendChild(card);
+  });
+
+  const totalEarnings = (marketplaceCommissions || [])
+    .reduce((sum, item) => sum + Number(item.promoter_earnings || 0), 0);
+
+  $("promoterEarnings").textContent = money(totalEarnings);
 }
 
 function renderRecords(container, records, emptyText) {
