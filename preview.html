@@ -1,0 +1,363 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EarnSmart | Shop Smart. Earn Smart.</title>
+  <style>
+    :root {
+      --ink: #26332e;
+      --muted: #718078;
+      --green: #27664f;
+      --gold: #c5a45b;
+      --cream: #faf9f5;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: var(--ink);
+      background: var(--cream);
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid #eeeae1;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar {
+      max-width: 1180px;
+      margin: auto;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .logo {
+      font-size: 27px;
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: -1px;
+    }
+
+    .logo span { color: var(--gold); }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    nav a {
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .hero {
+      max-width: 1180px;
+      margin: 30px auto;
+      padding: 55px 30px;
+      border-radius: 22px;
+      background: linear-gradient(120deg, #e8efe8, #f7f0df);
+      text-align: center;
+    }
+
+    .hero small {
+      color: var(--green);
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      margin: 15px 0;
+      letter-spacing: -1.5px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .search {
+      display: flex;
+      max-width: 570px;
+      margin: 25px auto 0;
+      background: white;
+      border-radius: 50px;
+      padding: 7px;
+      box-shadow: 0 5px 20px #0000000c;
+    }
+
+    .search input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      padding: 12px 16px;
+      font-size: 15px;
+      background: transparent;
+    }
+
+    .search button, .shop-button {
+      border: 0;
+      background: var(--green);
+      color: white;
+      border-radius: 30px;
+      padding: 12px 22px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: auto;
+      padding: 0 22px 50px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin: 42px 0 18px;
+    }
+
+    .section-heading h2 { margin: 0; font-size: 25px; }
+
+    .marketplaces {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .market {
+      padding: 23px;
+      border-radius: 16px;
+      background: white;
+      border: 1px solid #eeeae1;
+      text-align: center;
+    }
+
+    .market h3 { margin: 0 0 7px; font-size: 21px; }
+    .market p { color: var(--muted); font-size: 13px; margin: 0; }
+
+    .market.shopee { border-top: 4px solid #ee4d2d; }
+    .market.lazada { border-top: 4px solid #7137ce; }
+    .market.tiktok { border-top: 4px solid #252525; }
+
+    .status {
+      display: inline-block;
+      margin-top: 13px;
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--green);
+      background: #eaf3ed;
+      border-radius: 20px;
+      padding: 6px 11px;
+    }
+
+    .coming {
+      color: #777;
+      background: #f1f1f1;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .product {
+      overflow: hidden;
+      border-radius: 15px;
+      background: white;
+      border: 1px solid #eeeae1;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .product:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px #0000000c;
+    }
+
+    .product img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      background: #f1f1ed;
+    }
+
+    .product-info { padding: 14px; }
+    .product h3 { font-size: 15px; margin: 0 0 8px; }
+    .product p { font-size: 12px; color: var(--muted); margin: 0 0 12px; }
+
+    .shop-button {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      font-size: 13px;
+      padding: 11px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 28px 15px;
+      background: #243c32;
+      color: white;
+      font-size: 13px;
+    }
+
+    @media (max-width: 760px) {
+      .topbar { flex-direction: column; }
+      nav { justify-content: center; gap: 14px; }
+      .hero { margin: 18px 14px; padding: 38px 18px; }
+      .marketplaces { grid-template-columns: 1fr; }
+      .products { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .section-heading h2 { font-size: 21px; }
+    }
+
+    @media (max-width: 360px) {
+      .products { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <div class="logo">Earn<span>Smart</span></div>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#marketplaces">Marketplaces</a>
+      <a href="#products">All Products</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" id="home">
+  <small>WELCOME TO EARNSMART</small>
+  <h1>Discover Something You'll Love.</h1>
+  <p>Your friendly destination for great finds from your favorite marketplaces.</p>
+  <div class="search">
+    <input id="searchInput" type="search" placeholder="What are you looking for?">
+    <button onclick="searchProducts()">Search</button>
+  </div>
+</section>
+
+<main>
+  <section id="marketplaces">
+    <div class="section-heading">
+      <h2>Shop by Marketplace</h2>
+    </div>
+
+    <div class="marketplaces">
+      <div class="market shopee">
+        <h3>Shopee</h3>
+        <p>Discover your next great find.</p>
+        <span class="status">First marketplace</span>
+      </div>
+
+      <div class="market lazada">
+        <h3>Lazada</h3>
+        <p>More shopping choices are coming.</p>
+        <span class="status coming">Coming soon</span>
+      </div>
+
+      <div class="market tiktok">
+        <h3>TikTok Shop</h3>
+        <p>Explore exciting product finds.</p>
+        <span class="status coming">Coming soon</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="products">
+    <div class="section-heading">
+      <h2>Featured Finds</h2>
+      <span style="font-size:13px;color:#718078">Our shopping preview</span>
+    </div>
+
+    <div class="products" id="productGrid">
+      <article class="product">
+        <img src="https://placehold.co/500x500/f0eee7/52675b?text=Product+Image" alt="Product image preview">
+        <div class="product-info">
+          <h3>Product One</h3>
+          <p>Shopee · Sample listing</p>
+          <a class="shop-button" href="#marketplaces">Shop Now</a>
+        </div>
+      </article>
+
+      <article class="product">
+        <img src="https://placehold.co/500x500/f0eee7/52675b?text=Product+Image" alt="Product image preview">
+        <div class="product-info">
+          <h3>Product Two</h3>
+          <p>Shopee · Sample listing</p>
+          <a class="shop-button" href="#marketplaces">Shop Now</a>
+        </div>
+      </article>
+
+      <article class="product">
+        <img src="https://placehold.co/500x500/f0eee7/52675b?text=Product+Image" alt="Product image preview">
+        <div class="product-info">
+          <h3>Product Three</h3>
+          <p>Lazada · Preview only</p>
+          <a class="shop-button" href="#marketplaces">Coming Soon</a>
+        </div>
+      </article>
+
+      <article class="product">
+        <img src="https://placehold.co/500x500/f0eee7/52675b?text=Product+Image" alt="Product image preview">
+        <div class="product-info">
+          <h3>Product Four</h3>
+          <p>TikTok Shop · Preview only</p>
+          <a class="shop-button" href="#marketplaces">Coming Soon</a>
+        </div>
+      </article>
+    </div>
+
+    <p class="note">Sample preview only. Real products, images, prices, and affiliate links will be connected later.</p>
+  </section>
+</main>
+
+<footer>
+  <strong>EarnSmart</strong><br><br>
+  Shop Smart. Earn Smart.<br>
+  Your friendly shopping gateway.
+</footer>
+
+<script>
+  function searchProducts() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const products = document.querySelectorAll(".product");
+
+    products.forEach(product => {
+      product.style.display =
+        product.innerText.toLowerCase().includes(query) ? "" : "none";
+    });
+  }
+
+  document.getElementById("searchInput").addEventListener("input", searchProducts);
+</script>
+
+</body>
+</html>
