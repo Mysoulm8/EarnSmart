@@ -359,5 +359,88 @@
   document.getElementById("searchInput").addEventListener("input", searchProducts);
 </script>
 
+<script src="./config.js"></script>
+
+<script type="module">
+  import { createClient } from
+    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+  const supabase = createClient(
+    window.EARNSMART_SUPABASE_URL,
+    window.EARNSMART_SUPABASE_PUBLISHABLE_KEY
+  );
+
+  async function loadEarnSmartProducts() {
+    const grid = document.getElementById("productGrid");
+
+    const { data, error } = await supabase
+      .from("earnsmart_products")
+      .select("id, platform, product_name, description, image_url, product_price, affiliate_url")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Product loading error:", error);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      return;
+    }
+
+    grid.replaceChildren();
+
+    data.forEach(product => {
+      const card = document.createElement("article");
+      card.className = "product";
+
+      const image = document.createElement("img");
+      const validImage = /^https:\/\//i.test(product.image_url || "");
+      image.src = validImage
+        ? product.image_url
+        : "https://placehold.co/500x500/f0eee7/52675b?text=Product+Image";
+      image.alt = product.product_name || "Product";
+
+      const info = document.createElement("div");
+      info.className = "product-info";
+
+      const name = document.createElement("h3");
+      name.textContent = product.product_name;
+
+      const details = document.createElement("p");
+      details.textContent =
+        product.platform.toUpperCase() +
+        (product.product_price != null
+          ? " · ₱" + Number(product.product_price).toLocaleString("en-PH")
+          : "");
+
+      info.append(name, details);
+
+      if (product.description) {
+        const description = document.createElement("p");
+        description.textContent = product.description;
+        info.append(description);
+      }
+
+      const validLink = /^https:\/\//i.test(product.affiliate_url || "");
+
+      if (validLink) {
+        const button = document.createElement("a");
+        button.className = "shop-button";
+        button.href = product.affiliate_url;
+        button.target = "_blank";
+        button.rel = "noopener noreferrer";
+        button.textContent = "Shop Now";
+        info.append(button);
+      }
+
+      card.append(image, info);
+      grid.append(card);
+    });
+  }
+
+  loadEarnSmartProducts();
+</script>
 </body>
 </html>
+
