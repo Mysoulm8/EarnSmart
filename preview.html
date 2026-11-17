@@ -956,6 +956,14 @@ panel.append(title, notice);
 
     data.forEach(product => {
       const card = document.createElement("article");
+      const category = (product.category || "").toLowerCase();
+
+card.dataset.category =
+  category.includes("fashion") ? "fashion" :
+  category.includes("electronic") ? "electronics" :
+  category.includes("home") ? "home" :
+  category.includes("beauty") ? "beauty" :
+  "other";
       card.className = "product";
 
       const image = document.createElement("img");
@@ -1013,7 +1021,27 @@ info.append(addButton);
       grid.append(card);
     });
   }
+let selectedCategory = "all";
 
+document.querySelectorAll(".category-button").forEach(button => {
+  button.addEventListener("click", () => {
+    selectedCategory = button.dataset.category;
+
+    document.querySelectorAll(".category-button").forEach(item => {
+      item.classList.remove("active");
+    });
+
+    button.classList.add("active");
+
+    document.querySelectorAll("#productGrid .product").forEach(card => {
+      card.style.display =
+        selectedCategory === "all" ||
+        card.dataset.category === selectedCategory
+          ? ""
+          : "none";
+    });
+  });
+});
   loadEarnSmartProducts();
 </script>
 </body>
