@@ -397,6 +397,29 @@
     @media (max-width: 360px) {
       .products { grid-template-columns: 1fr; }
     }
+.category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 25px 0;
+}
+
+.category-button {
+  padding: 10px 18px;
+  border: 1px solid #28734d;
+  border-radius: 25px;
+  background: white;
+  color: #28734d;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-button:hover,
+.category-button.active {
+  background: #28734d;
+  color: white;
+}
   </style>
 </head>
 <body>
@@ -459,7 +482,13 @@
       <h2>Featured Finds</h2>
       <span style="font-size:13px;color:#718078">Our shopping preview</span>
     </div>
-
+<div class="category-filters">
+  <button class="category-button active" data-category="all">All Products</button>
+  <button class="category-button" data-category="fashion">Fashion</button>
+  <button class="category-button" data-category="electronics">Electronics</button>
+  <button class="category-button" data-category="home">Home & Living</button>
+  <button class="category-button" data-category="beauty">Beauty</button>
+</div>
     <div class="products" id="productGrid">
       <article class="product">
         <img src="https://placehold.co/500x500/f0eee7/52675b?text=Product+Image" alt="Product image preview">
@@ -910,7 +939,7 @@ panel.append(title, notice);
 
     const { data, error } = await supabase
       .from("earnsmart_products")
-      .select("id, platform, product_name, description, image_url, product_price, affiliate_url")
+      .select("id, platform, product_name, description, image_url, product_price, affiliate_url, category")
       .eq("is_active", true)
       .order("created_at", { ascending: false });
 
