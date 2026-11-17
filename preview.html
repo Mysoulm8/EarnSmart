@@ -556,115 +556,191 @@ function removeFromCart(index) {
   renderCart();
 }
 
+
 function renderCart() {
   const cartItems = document.getElementById("cartItems");
   const cartCount = document.getElementById("cartCount");
   const cartTotal = document.getElementById("cartTotal");
 
-  cartCount.textContent = shoppingCart.length;
   cartItems.replaceChildren();
+
+  const itemCount = shoppingCart.reduce(
+    (sum, product) => sum + (product.quantity || 1), 0
+  );
+
+  cartCount.textContent = itemCount;
 
   if (shoppingCart.length === 0) {
     cartItems.textContent =
       "Your cart is empty. Start adding products you love!";
+    cartTotal.textContent = "Total: ₱0.00";
+    return;
   }
 
-  let total = 0;
+  const groups = new Map();
 
-  shoppingCart.forEach((product, index) => {
-    const item = document.createElement("div");
-    item.className = "cart-item";
+  shoppingCart.forEach(product => {
+    const platform = (product.platform || "other").toLowerCase();
 
-    const image = document.createElement("img");
-    image.src = product.image_url || "";
-    image.alt = product.product_name || "Product";
+    if (!groups.has(platform)) {
+      groups.set(platform, []);
+    }
 
-    const info = document.createElement("div");
-    info.className = "cart-item-info";
+    groups.get(platform).push(product);
+  });
 
-    const name = document.createElement("strong");
-    name.textContent = product.product_name;
+  const platformOrder = ["shopee", "lazada", "tiktok"];
 
-    const details = document.createElement("p");
-    details.textContent =
-      product.platform.toUpperCase() +
-      (product.product_price != null
-        ? " · ₱" + Number(product.product_price).toLocaleString("en-PH")
-        : "");
+  const sortedGroups = [...groups.entries()].sort(
+    (a, b) => {
+      const aOrder = platformOrder.indexOf(a[0]);
+      const bOrder = platformOrder.indexOf(b[0]);
 
-    info.append(name, details);
-    
-const quantityControls = document.createElement("div");
-quantityControls.style.display = "flex";
-quantityControls.style.alignItems = "center";
-quantityControls.style.gap = "12px";
-quantityControls.style.marginTop = "10px";
+      return (aOrder === -1 ? 99 : aOrder) -
+             (bOrder === -1 ? 99 : bOrder);
+    }
+  );
 
-const minusButton = document.createElement("button");
-minusButton.textContent = "−";
-minusButton.type = "button";
+  let grandTotal = 0;
 
-const quantityText = document.createElement("strong");
-quantityText.textContent = product.quantity || 1;
+  sortedGroups.forEach(([platform, products]) => {
+    const group = document.createElement("div");
+    group.style.marginBottom = "25px";
 
-const plusButton = document.createElement("button");
-plusButton.textContent = "+";
-plusButton.type = "button";
+    const heading = document.createElement("h3");
+    heading.textContent =
+      platform === "tiktok"
+        ? "TikTok Shop"
+        : platform.charAt(0).toUpperCase() + platform.slice(1);
 
-[minusButton, plusButton].forEach(button => {
-  button.style.padding = "5px 12px";
-  button.style.border = "1px solid #28734d";
-  button.style.borderRadius = "6px";
-  button.style.background = "white";
-  button.style.color = "#28734d";
-  button.style.cursor = "pointer";
-});
+    heading.style.color = "#28734d";
+    heading.style.paddingBottom = "10px";
+    heading.style.borderBottom = "2px solid #e8eee8";
 
-minusButton.addEventListener("click", () => {
-  product.quantity = Math.max(1, (product.quantity || 1) - 1);
-  saveCart();
-  renderCart();
-});
+    group.append(heading);
 
-plusButton.addEventListener("click", () => {
-  product.quantity = (product.quantity || 1) + 1;
-  saveCart();
-  renderCart();
-});
+    let subtotal = 0;
 
-quantityControls.append(minusButton, quantityText, plusButton);
-info.append(quantityControls);
+    products.forEach(product => {
+      const index = shoppingCart.indexOf(product);
+      const quantity = product.quantity || 1;
+      const price = Number(product.product_price) || 0;
 
+      subtotal += price * quantity;
 
-    const removeButton = document.createElement("button");
-    removeButton.className = "remove-button";
-    removeButton.textContent = "Remove";
-    removeButton.type = "button";
-    removeButton.addEventListener("click", () => {
-      removeFromCart(index);
+      const item = document.createElement("div");
+      item.className = "cart-item";
+
+      const image = document.createElement("img");
+      image.src = product.image_url || "";
+      image.alt = product.product_name || "Product";
+
+      const info = document.createElement("div");
+      info.className = "cart-item-info";
+
+      const name = document.createElement("strong");
+      name.textContent = product.product_name;
+
+      const details = document.createElement("p");
+      details.textContent =
+        product.product_price != null
+          ? "₱" + price.toLocaleString("en-PH") +
+            " × " + quantity
+          : "Price unavailable";
+
+      info.append(name, details);
+
+      const quantityControls = document.createElement("div");
+      quantityControls.style.display = "flex";
+      quantityControls.style.alignItems = "center";
+      quantityControls.style.gap = "12px";
+      quantityControls.style.marginTop = "10px";
+
+      const minusButton = document.createElement("button");
+      minusButton.textContent = "−";
+      minusButton.type = "button";
+
+      const quantityText = document.createElement("strong");
+      quantityText.textContent = quantity;
+
+      const plusButton = document.createElement("button");
+      plusButton.textContent = "+";
+      plusButton.type = "button";
+
+      [minusButton, plusButton].forEach(button => {
+        button.style.padding = "5px 12px";
+        button.style.border = "1px solid #28734d";
+        button.style.borderRadius = "6px";
+        button.style.background = "white";
+        button.style.color = "#28734d";
+        button.style.cursor = "pointer";
+      });
+
+      minusButton.addEventListener("click", () => {
+        product.quantity = Math.max(1, quantity - 1);
+        saveCart();
+        renderCart();
+      });
+
+      plusButton.addEventListener("click", () => {
+        product.quantity = quantity + 1;
+        saveCart();
+        renderCart();
+      });
+
+      quantityControls.append(
+        minusButton, quantityText, plusButton
+      );
+
+      info.append(quantityControls);
+
+      const shopButton = document.createElement("a");
+      shopButton.className = "shop-button";
+      shopButton.textContent = "Shop Now";
+      shopButton.href = product.affiliate_url || "#";
+      shopButton.target = "_blank";
+      shopButton.rel = "noopener noreferrer";
+
+      const removeButton = document.createElement("button");
+      removeButton.className = "remove-button";
+      removeButton.textContent = "Remove";
+      removeButton.type = "button";
+
+      removeButton.addEventListener("click", () => {
+        removeFromCart(index);
+      });
+
+      item.append(image, info, shopButton, removeButton);
+      group.append(item);
     });
 
-    const shopButton = document.createElement("a");
-shopButton.className = "shop-button";
-shopButton.textContent = "Shop Now";
-shopButton.href = product.affiliate_url || "#";
-shopButton.target = "_blank";
-shopButton.rel = "noopener noreferrer";
+    const subtotalText = document.createElement("p");
+    subtotalText.style.textAlign = "right";
+    subtotalText.style.fontWeight = "700";
+    subtotalText.style.color = "#243c32";
+    subtotalText.textContent =
+      platform.charAt(0).toUpperCase() +
+      platform.slice(1) +
+      " Subtotal: ₱" +
+      subtotal.toLocaleString("en-PH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
 
-item.append(image, info, shopButton, removeButton);
-    cartItems.append(item);
+    group.append(subtotalText);
+    cartItems.append(group);
 
-    if (product.product_price != null) {
-     total += Number(product.product_price) * (product.quantity || 1);
-    }
+    grandTotal += subtotal;
   });
 
   cartTotal.textContent =
-    "Total: ₱" + total.toLocaleString("en-PH", {
+    "Grand Total: ₱" +
+    grandTotal.toLocaleString("en-PH", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });
 }
+
 
 renderCart();
 
