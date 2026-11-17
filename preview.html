@@ -752,26 +752,118 @@ function renderCart() {
 
 
 renderCart();
-  document.getElementById("checkoutButton").addEventListener("click", () => {
+  
+document.getElementById("checkoutButton").addEventListener("click", () => {
   if (shoppingCart.length === 0) {
     alert("Your shopping cart is empty!");
     return;
   }
 
-  const platforms = [...new Set(
-    shoppingCart.map(product => product.platform.toLowerCase())
-  )];
+  const button = document.getElementById("checkoutButton");
+  let panel = document.getElementById("checkoutPanel");
 
-  const message = platforms.map(platform => {
-    const platformName =
-      platform === "tiktok" ? "TikTok Shop" :
-      platform.charAt(0).toUpperCase() + platform.slice(1);
+  if (!panel) {
+    panel = document.createElement("div");
+    panel.id = "checkoutPanel";
+    panel.className = "cart-section";
+    button.insertAdjacentElement("afterend", panel);
+  }
 
-    return platformName + " order is ready. Please use the Shop Now button beside each product to complete your purchase.";
-  }).join("\n\n");
+  panel.replaceChildren();
 
-  alert("EarnSmart Checkout\n\n" + message);
+  const title = document.createElement("h2");
+  title.textContent = "Your Checkout Summary";
+  panel.append(title);
+
+  const platforms = {
+    shopee: "Shopee",
+    lazada: "Lazada",
+    tiktok: "TikTok Shop"
+  };
+
+  const groups = new Map();
+
+  shoppingCart.forEach(product => {
+    const platform = (product.platform || "other").toLowerCase();
+
+    if (!groups.has(platform)) {
+      groups.set(platform, []);
+    }
+
+    groups.get(platform).push(product);
+  });
+
+  let grandTotal = 0;
+
+  ["shopee", "lazada", "tiktok", "other"].forEach(platform => {
+    const products = groups.get(platform);
+    if (!products) return;
+
+    const heading = document.createElement("h3");
+    heading.textContent = platforms[platform] || "Other Products";
+    panel.append(heading);
+
+    let subtotal = 0;
+
+    products.forEach(product => {
+      const quantity = product.quantity || 1;
+      const price = Number(product.product_price) || 0;
+      const lineTotal = price * quantity;
+      subtotal += lineTotal;
+
+      const row = document.createElement("div");
+      row.style.padding = "12px 0";
+      row.style.borderBottom = "1px solid #eee";
+
+      const name = document.createElement("p");
+      name.textContent =
+        product.product_name + " × " + quantity;
+
+      const amount = document.createElement("strong");
+      amount.textContent =
+        "₱" + lineTotal.toLocaleString("en-PH", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+
+      const shopLink = document.createElement("a");
+      shopLink.className = "shop-button";
+      shopLink.textContent =
+        "Shop on " + (platforms[platform] || "Marketplace");
+      shopLink.href = product.affiliate_url || "#";
+      shopLink.target = "_blank";
+      shopLink.rel = "noopener noreferrer";
+
+      row.append(name, amount, shopLink);
+      panel.append(row);
+    });
+
+    grandTotal += subtotal;
+
+    const subtotalText = document.createElement("h4");
+    subtotalText.textContent =
+      "Marketplace Subtotal: ₱" +
+      subtotal.toLocaleString("en-PH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+    panel.append(subtotalText);
+  });
+
+  const total = document.createElement("h2");
+  total.textContent =
+    "Grand Total: ₱" +
+    grandTotal.toLocaleString("en-PH", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+  panel.append(total);
+
+  panel.scrollIntoView({ behavior: "smooth" });
 });
+
 
   async function loadEarnSmartProducts() {
     const grid = document.getElementById("productGrid");
