@@ -420,6 +420,29 @@
   background: #28734d;
   color: white;
 }
+.marketplace-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 15px 0 25px;
+}
+
+.marketplace-button {
+  padding: 10px 18px;
+  border: 1px solid #d9a441;
+  border-radius: 25px;
+  background: white;
+  color: #8a6825;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.marketplace-button:hover,
+.marketplace-button.active {
+  background: #d9a441;
+  color: white;
+}
   </style>
 </head>
 <body>
@@ -488,6 +511,23 @@
   <button class="category-button" data-category="electronics">Electronics</button>
   <button class="category-button" data-category="home">Home & Living</button>
   <button class="category-button" data-category="beauty">Beauty</button>
+</div>
+<div class="marketplace-filters">
+  <button class="marketplace-button active" data-platform="all">
+    All Marketplaces
+  </button>
+
+  <button class="marketplace-button" data-platform="shopee">
+    Shopee
+  </button>
+
+  <button class="marketplace-button" data-platform="lazada">
+    Lazada
+  </button>
+
+  <button class="marketplace-button" data-platform="tiktok">
+    TikTok Shop
+  </button>
 </div>
     <div class="products" id="productGrid">
       <article class="product">
@@ -973,7 +1013,7 @@ card.dataset.category =
     ? "beauty"
   : "other";
       card.className = "product";
-
+card.dataset.platform = (product.platform || "").toLowerCase();
       const image = document.createElement("img");
       const validImage = /^https:\/\//i.test(product.image_url || "");
       image.src = validImage
@@ -1029,7 +1069,24 @@ info.append(addButton);
       grid.append(card);
     });
   }
+
 let selectedCategory = "all";
+let selectedPlatform = "all";
+
+function applyProductFilters() {
+  document.querySelectorAll("#productGrid .product").forEach(card => {
+    const categoryMatch =
+      selectedCategory === "all" ||
+      card.dataset.category === selectedCategory;
+
+    const platformMatch =
+      selectedPlatform === "all" ||
+      card.dataset.platform === selectedPlatform;
+
+    card.style.display =
+      categoryMatch && platformMatch ? "" : "none";
+  });
+}
 
 document.querySelectorAll(".category-button").forEach(button => {
   button.addEventListener("click", () => {
@@ -1040,16 +1097,23 @@ document.querySelectorAll(".category-button").forEach(button => {
     });
 
     button.classList.add("active");
-
-    document.querySelectorAll("#productGrid .product").forEach(card => {
-      card.style.display =
-        selectedCategory === "all" ||
-        card.dataset.category === selectedCategory
-          ? ""
-          : "none";
-    });
+    applyProductFilters();
   });
 });
+
+document.querySelectorAll(".marketplace-button").forEach(button => {
+  button.addEventListener("click", () => {
+    selectedPlatform = button.dataset.platform;
+
+    document.querySelectorAll(".marketplace-button").forEach(item => {
+      item.classList.remove("active");
+    });
+
+    button.classList.add("active");
+    applyProductFilters();
+  });
+});
+
   loadEarnSmartProducts();
 </script>
 </body>
