@@ -570,7 +570,10 @@ function renderCart() {
   const cartItems = document.getElementById("cartItems");
   const cartCount = document.getElementById("cartCount");
   const cartTotal = document.getElementById("cartTotal");
-
+const checkoutPanel = document.getElementById("checkoutPanel");
+if (checkoutPanel) {
+  checkoutPanel.remove();
+}
   cartItems.replaceChildren();
 
   const itemCount = shoppingCart.reduce(
