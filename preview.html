@@ -240,6 +240,101 @@
 }
 
 
+.cart-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #28734d;
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 10px;
+}
+
+.cart-button:hover {
+  background: #1d593b;
+}
+
+#cartCount {
+  background: white;
+  color: #28734d;
+  border-radius: 50%;
+  min-width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+   
+.cart-section {
+  margin: 45px 0;
+  padding: 25px;
+  background: #ffffff;
+  border: 1px solid #e8eee8;
+  border-radius: 18px;
+}
+
+.cart-section h2 {
+  color: #243c32;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-item img {
+  width: 75px;
+  height: 75px;
+  object-fit: contain;
+  background: #f8faf7;
+  border-radius: 10px;
+}
+
+.cart-item-info {
+  flex: 1;
+}
+
+.remove-button {
+  border: none;
+  background: #fcebea;
+  color: #b42318;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#cartTotal {
+  margin-top: 20px;
+  font-weight: 700;
+  color: #243c32;
+  text-align: right;
+}
+
+.add-cart-button {
+  display: block;
+  width: 100%;
+  margin-top: 9px;
+  padding: 11px;
+  border: 1px solid #28734d;
+  border-radius: 9px;
+  background: white;
+  color: #28734d;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.add-cart-button:hover {
+  background: #edf6ef;
+}
+
     .note {
       color: var(--muted);
       font-size: 12px;
@@ -279,6 +374,11 @@
       <a href="#marketplaces">Marketplaces</a>
       <a href="#products">All Products</a>
     </nav>
+
+<a href="#cart" class="cart-button">
+  🛒 Cart <span id="cartCount">0</span>
+</a>
+
   </div>
 </header>
 
@@ -365,6 +465,19 @@
 
     <p class="note">Sample preview only. Real products, images, prices, and affiliate links will be connected later.</p>
   </section>
+
+<section id="cart" class="cart-section">
+  <div class="section-heading">
+    <h2>My Shopping Cart 🛒</h2>
+  </div>
+
+  <div id="cartItems">
+    <p>Your cart is empty. Start adding products you love!</p>
+  </div>
+
+  <div id="cartTotal">Total: ₱0.00</div>
+</section>
+
 </main>
 
 <footer>
@@ -397,6 +510,106 @@
     window.EARNSMART_SUPABASE_URL,
     window.EARNSMART_SUPABASE_PUBLISHABLE_KEY
   );
+
+  
+let shoppingCart = [];
+
+try {
+  shoppingCart = JSON.parse(
+    localStorage.getItem("earnsmartCart") || "[]"
+  );
+
+  if (!Array.isArray(shoppingCart)) {
+    shoppingCart = [];
+  }
+} catch {
+  shoppingCart = [];
+}
+
+function saveCart() {
+  localStorage.setItem("earnsmartCart", JSON.stringify(shoppingCart));
+}
+
+function addToCart(product) {
+  const alreadyAdded = shoppingCart.some(
+    item => item.id === product.id
+  );
+
+  if (!alreadyAdded) {
+    shoppingCart.push(product);
+    saveCart();
+    renderCart();
+  }
+}
+
+function removeFromCart(index) {
+  shoppingCart.splice(index, 1);
+  saveCart();
+  renderCart();
+}
+
+function renderCart() {
+  const cartItems = document.getElementById("cartItems");
+  const cartCount = document.getElementById("cartCount");
+  const cartTotal = document.getElementById("cartTotal");
+
+  cartCount.textContent = shoppingCart.length;
+  cartItems.replaceChildren();
+
+  if (shoppingCart.length === 0) {
+    cartItems.textContent =
+      "Your cart is empty. Start adding products you love!";
+  }
+
+  let total = 0;
+
+  shoppingCart.forEach((product, index) => {
+    const item = document.createElement("div");
+    item.className = "cart-item";
+
+    const image = document.createElement("img");
+    image.src = product.image_url || "";
+    image.alt = product.product_name || "Product";
+
+    const info = document.createElement("div");
+    info.className = "cart-item-info";
+
+    const name = document.createElement("strong");
+    name.textContent = product.product_name;
+
+    const details = document.createElement("p");
+    details.textContent =
+      product.platform.toUpperCase() +
+      (product.product_price != null
+        ? " · ₱" + Number(product.product_price).toLocaleString("en-PH")
+        : "");
+
+    info.append(name, details);
+
+    const removeButton = document.createElement("button");
+    removeButton.className = "remove-button";
+    removeButton.textContent = "Remove";
+    removeButton.type = "button";
+    removeButton.addEventListener("click", () => {
+      removeFromCart(index);
+    });
+
+    item.append(image, info, removeButton);
+    cartItems.append(item);
+
+    if (product.product_price != null) {
+      total += Number(product.product_price);
+    }
+  });
+
+  cartTotal.textContent =
+    "Total: ₱" + total.toLocaleString("en-PH", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+}
+
+renderCart();
 
   async function loadEarnSmartProducts() {
     const grid = document.getElementById("productGrid");
@@ -449,6 +662,17 @@
         description.textContent = product.description;
         info.append(description);
       }
+
+const addButton = document.createElement("button");
+addButton.className = "add-cart-button";
+addButton.type = "button";
+addButton.textContent = "🛒 Add to Cart";
+addButton.addEventListener("click", () => {
+  addToCart(product);
+  addButton.textContent = "✓ Added to Cart";
+});
+
+info.append(addButton);
 
       const validLink = /^https:\/\//i.test(product.affiliate_url || "");
 
