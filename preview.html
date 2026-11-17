@@ -238,7 +238,13 @@
 .shop-button:hover {
   background: #1d593b;
 }
-
+#checkoutButton {
+  width: 100%;
+  margin-top: 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
 
 .cart-button {
   display: inline-flex;
@@ -476,6 +482,9 @@
   </div>
 
   <div id="cartTotal">Total: ₱0.00</div>
+  <button id="checkoutButton" class="shop-button" type="button">
+  Proceed to Checkout →
+</button>
 </section>
 
 </main>
@@ -743,6 +752,26 @@ function renderCart() {
 
 
 renderCart();
+  document.getElementById("checkoutButton").addEventListener("click", () => {
+  if (shoppingCart.length === 0) {
+    alert("Your shopping cart is empty!");
+    return;
+  }
+
+  const platforms = [...new Set(
+    shoppingCart.map(product => product.platform.toLowerCase())
+  )];
+
+  const message = platforms.map(platform => {
+    const platformName =
+      platform === "tiktok" ? "TikTok Shop" :
+      platform.charAt(0).toUpperCase() + platform.slice(1);
+
+    return platformName + " order is ready. Please use the Shop Now button beside each product to complete your purchase.";
+  }).join("\n\n");
+
+  alert("EarnSmart Checkout\n\n" + message);
+});
 
   async function loadEarnSmartProducts() {
     const grid = document.getElementById("productGrid");
