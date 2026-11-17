@@ -957,13 +957,21 @@ panel.append(title, notice);
     data.forEach(product => {
       const card = document.createElement("article");
       const category = (product.category || "").toLowerCase();
+const productName = (product.product_name || "").toLowerCase();
+const description = (product.description || "").toLowerCase();
+
+const productText = category + " " + productName + " " + description;
 
 card.dataset.category =
-  category.includes("fashion") ? "fashion" :
-  category.includes("electronic") ? "electronics" :
-  category.includes("home") ? "home" :
-  category.includes("beauty") ? "beauty" :
-  "other";
+  /fashion|clothing|apparel|shoes|sneakers|shirt|dress|pants|jeans|bag|watch/.test(productText)
+    ? "fashion"
+  : /electronic|phone|mobile|laptop|computer|tablet|headphone|speaker|camera|gadget/.test(productText)
+    ? "electronics"
+  : /home|kitchen|appliance|furniture|decor|cookware|bedding|storage/.test(productText)
+    ? "home"
+  : /beauty|skincare|makeup|cosmetic|perfume|lotion|shampoo|haircare/.test(productText)
+    ? "beauty"
+  : "other";
       card.className = "product";
 
       const image = document.createElement("img");
