@@ -594,7 +594,14 @@ function renderCart() {
       removeFromCart(index);
     });
 
-    item.append(image, info, removeButton);
+    const shopButton = document.createElement("a");
+shopButton.className = "shop-button";
+shopButton.textContent = "Shop Now";
+shopButton.href = product.affiliate_url || "#";
+shopButton.target = "_blank";
+shopButton.rel = "noopener noreferrer";
+
+item.append(image, info, shopButton, removeButton);
     cartItems.append(item);
 
     if (product.product_price != null) {
