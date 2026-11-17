@@ -805,8 +805,16 @@ document.getElementById("checkoutButton").addEventListener("click", () => {
 
   const title = document.createElement("h2");
   title.textContent = "Your Checkout Summary";
-  panel.append(title);
+  const notice = document.createElement("p");
+notice.textContent =
+  "You will complete your purchase securely on the selected marketplace. EarnSmart may earn a commission from qualifying purchases at no extra cost to you.";
+notice.style.background = "#edf6ef";
+notice.style.padding = "14px";
+notice.style.borderRadius = "10px";
+notice.style.fontSize = "13px";
 
+panel.append(title, notice);
+ 
   const platforms = {
     shopee: "Shopee",
     lazada: "Lazada",
