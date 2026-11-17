@@ -138,19 +138,25 @@
 
     .section-heading h2 { margin: 0; font-size: 25px; }
 
-    .marketplaces {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
+   .marketplaces {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
 
-    .market {
-      padding: 23px;
-      border-radius: 16px;
-      background: white;
-      border: 1px solid #eeeae1;
-      text-align: center;
-    }
+.market {
+  min-height: 175px;
+  padding: 23px;
+  border-radius: 16px;
+  background: white;
+  border: 1px solid #eeeae1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 
     .market h3 { margin: 0 0 7px; font-size: 21px; }
     .market p { color: var(--muted); font-size: 13px; margin: 0; }
