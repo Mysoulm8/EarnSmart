@@ -530,17 +530,25 @@ function saveCart() {
   localStorage.setItem("earnsmartCart", JSON.stringify(shoppingCart));
 }
 
+
 function addToCart(product) {
-  const alreadyAdded = shoppingCart.some(
+  const existingItem = shoppingCart.find(
     item => item.id === product.id
   );
 
-  if (!alreadyAdded) {
-    shoppingCart.push(product);
-    saveCart();
-    renderCart();
+  if (existingItem) {
+    existingItem.quantity = (existingItem.quantity || 1) + 1;
+  } else {
+    shoppingCart.push({
+      ...product,
+      quantity: 1
+    });
   }
+
+  saveCart();
+  renderCart();
 }
+
 
 function removeFromCart(index) {
   shoppingCart.splice(index, 1);
@@ -585,6 +593,48 @@ function renderCart() {
         : "");
 
     info.append(name, details);
+    
+const quantityControls = document.createElement("div");
+quantityControls.style.display = "flex";
+quantityControls.style.alignItems = "center";
+quantityControls.style.gap = "12px";
+quantityControls.style.marginTop = "10px";
+
+const minusButton = document.createElement("button");
+minusButton.textContent = "−";
+minusButton.type = "button";
+
+const quantityText = document.createElement("strong");
+quantityText.textContent = product.quantity || 1;
+
+const plusButton = document.createElement("button");
+plusButton.textContent = "+";
+plusButton.type = "button";
+
+[minusButton, plusButton].forEach(button => {
+  button.style.padding = "5px 12px";
+  button.style.border = "1px solid #28734d";
+  button.style.borderRadius = "6px";
+  button.style.background = "white";
+  button.style.color = "#28734d";
+  button.style.cursor = "pointer";
+});
+
+minusButton.addEventListener("click", () => {
+  product.quantity = Math.max(1, (product.quantity || 1) - 1);
+  saveCart();
+  renderCart();
+});
+
+plusButton.addEventListener("click", () => {
+  product.quantity = (product.quantity || 1) + 1;
+  saveCart();
+  renderCart();
+});
+
+quantityControls.append(minusButton, quantityText, plusButton);
+info.append(quantityControls);
+
 
     const removeButton = document.createElement("button");
     removeButton.className = "remove-button";
@@ -605,7 +655,7 @@ item.append(image, info, shopButton, removeButton);
     cartItems.append(item);
 
     if (product.product_price != null) {
-      total += Number(product.product_price);
+     total += Number(product.product_price) * (product.quantity || 1);
     }
   });
 
